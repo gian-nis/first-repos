@@ -1,3 +1,4 @@
+# Prints out every title on the nytimes homepage
 
 import requests
 
