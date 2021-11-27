@@ -4,9 +4,8 @@
 # Probably going to store passwords with account as a dictionary and make it so you call on a key
 # probably save it all capitalized or lower or both for searching
 
-# To do list: Make it so it remembers your name once inputted, doesn't create new file aka lets me keep info
-# make sure code is writing and reading from file in correct spots
-# be able to name file
+# Currently work in progress
+
 import json
 
 passwords = {
