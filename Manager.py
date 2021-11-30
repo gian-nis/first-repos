@@ -1,55 +1,84 @@
-# This manager will allow you to input a password for whatever account you want. You can store as many
-# as you want and allow to call any password.
-
-# Probably going to store passwords with account as a dictionary and make it so you call on a key
-# probably save it all capitalized or lower or both for searching
-
-# Currently work in progress
 
 import json
 
-passwords = {
+manage_on = True
 
-}
+while manage_on:
+
+    prompt = "\nIf you want to make a new password, type 'Make password'."
+    prompt += "\nIf you want to look for a password, type 'Look for password'.\n"
+    prompt += "If you want to view all your passwords, type 'View all passwords'.\n"
+    prompt += "if you want to delete a password, type 'Delete password'.\n"
+    answer = input(prompt)
+
+    answer = answer.upper()
+    # ^ asks user whether they want to make a password or look for one
 
 
-prompt = "If you want to make a new password, type 'Make password'."
-prompt += "\nIf you want to look for a password, type 'Look for password'.\n"
-answer = input(prompt)
+    def load_passwords():
+        try:
+            with open("passwords.txt", "r") as f:
+                passwords = json.loads(f.read())
+            return passwords
+        except FileNotFoundError:
+            if answer == "MAKE PASSWORD":
+                return {}
+            elif answer == "LOOK FOR PASSWORD":
+                print("Sorry but there are no passwords available. Make a new one!")
+                return {}
+    # ^ function checks whether password dictionary is empty or not. If not then it will read dictionary
+    def delete_password(account_name):
+        passwords = load_passwords()
+        del passwords[account_name]
+        return passwords
+
+    def password_list(account_name, password_name):
+        passwords = load_passwords()
+        passwords[account_name] = password_name
+        return passwords
+    # ^ load_password function gets passed into this function. account name and password get added
+
+    if answer == "MAKE PASSWORD":
+        account_name = input("What use is this password for? ").upper()
+        password_name = input("What is the password? ")
+        passwords = password_list(account_name, password_name)
+        with open("passwords.txt", "w+") as f:
+            f.write(json.dumps(passwords))
+        print("Your password was saved!")
 
 
-def password_list(account_name, password_name):
+    elif answer == "LOOK FOR PASSWORD":
+        passwords = load_passwords()
 
-    passwords[account_name] = password_name
+        if passwords:
+            search_account = input("What account is this password for? ").upper()
 
-
-answer = answer.upper()
-
-found = 0
-
-if answer == "MAKE PASSWORD":
-    account_name = input("What use is this password for? ")
-    account_name = account_name.upper()
-    password_name = input("What is the password? ")
-    password_list(account_name, password_name)
-    with open("passwords.txt", 'w+') as f:
-        f.write(json.dumps(passwords))
-    print("Your password was saved!")
-elif answer == "LOOK FOR PASSWORD":
-    with open("passwords.txt", "r") as f:
-        passwords = json.loads(f.read())
-        if not passwords:
-            print("Sorry but there are no passwords available. Make a new one!")
-        elif passwords:
-            search_account = input("What account is this password for? ")
-            search_account = search_account.upper()
-            for name in passwords.keys():
-                if search_account == name:
-                    print(f"The password is '{passwords.get(name)}'.")
-                    found = 1
-                    break
-            if found != 1:
+            if search_account in passwords:
+                print(f"The password is '{(passwords.get(search_account))}'.")
+            else:
                 print("Sorry, we can't find such name.")
 
+    elif answer == "VIEW ALL PASSWORDS":
+        passwords = load_passwords()
 
-# make it a while loop that lets you exit
+        try:
+            for keys, values in passwords.items():
+                print(f"Account: {keys}")
+                print(f"Password: {values}")
+                print("\n")
+        except AttributeError:
+            print("There are no passwords made yet. Make one!")
+
+    elif answer == "DELETE PASSWORD":
+        print("\n")
+        account_name = input("What account or purpose is this password for? ").upper()
+        passwords = delete_password(account_name)
+        with open("passwords.txt", "w+") as f:
+            f.write(json.dumps(passwords))
+        print("\nThe password has been deleted")
+
+    continue_or_leave = input("\nDo you wish to exit? 'no' or 'yes'. ").upper()
+
+    if continue_or_leave == "YES":
+        manage_on = False
+
